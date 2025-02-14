@@ -43,6 +43,7 @@
                 <version>0.6.1</version>
                 <configuration>
                     <protocExecutable>C:\project\probuffer\bin\protoc.exe</protocExecutable> <!-- Path to protoc -->
+                    <outputDirectory>${project.build.directory}/generated-sources/protobuf/java</outputDirectory>
                     <pluginId>grpc-java</pluginId>
                     <pluginArtifact>
                         <groupId>io.grpc</groupId>
