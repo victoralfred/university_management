@@ -33,6 +33,9 @@
         <protobuf-java.version>3.25.5</protobuf-java.version>
         <spring-grpc.version>0.3.0</spring-grpc.version>
     </properties>
+    <modules>
+        <module>registration</module>
+    </modules>
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -94,6 +97,11 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
+                <groupId>com.google.protobuf</groupId>
+                <artifactId>protobuf-javalite</artifactId>
+                <version>4.28.2</version>
+            </dependency>
+            <dependency>
                 <groupId>org.springframework.grpc</groupId>
                 <artifactId>spring-grpc-dependencies</artifactId>
                 <version>${spring-grpc.version}</version>
@@ -116,30 +124,6 @@
                         <goals>
                             <goal>detect</goal>
                         </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.xolstice.maven.plugins</groupId>
-                <artifactId>protobuf-maven-plugin</artifactId>
-                <version>0.6.1</version>
-                <configuration>
-                    <protocArtifact>com.google.protobuf:protoc:${protobuf-java.version}:exe:${os.detected.classifier}
-                    </protocArtifact>
-                    <pluginId>grpc-java</pluginId>
-                    <pluginArtifact>io.grpc:protoc-gen-grpc-java:${grpc.version}:exe:${os.detected.classifier}
-                    </pluginArtifact>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>compile</id>
-                        <goals>
-                            <goal>compile</goal>
-                            <goal>compile-custom</goal>
-                        </goals>
-                        <configuration>
-                            <pluginParameter>jakarta_omit,@generated=omit</pluginParameter>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>
