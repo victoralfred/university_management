@@ -28,6 +28,7 @@ public class Constants {
      * Topic name for user registration confirmation notices.
      */
     public static final String USER_REGISTRATION_CONFIRMATION_NOTICE_TOPIC = "user_registration_confirmation";
+    public static final String EMAIL_VERIFICATION_MESSAGE_TOPIC ="email_registration_topic";
     /**
      *  Basic email pattern, can be more strict based on requirements
      */

@@ -41,6 +41,10 @@
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-jackson</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.vickezi</groupId>
+            <artifactId>globals</artifactId>
+        </dependency>
     </dependencies>
 
 <!--    <build>-->

@@ -41,13 +41,12 @@ public class CustomValidator {
         }
         return input;
     }
-
     /**
      * Validates and sanitizes a String input.
      * @param input the String to validate and sanitize
      * @return the sanitized String
      */
-    private static String validateString(String input) {
+    public static String validateStringLiterals(String input) {
         Assert.hasText(input, "Input cannot be empty or null");
         String sanitizedInput = sanitize(input);
 
@@ -55,6 +54,15 @@ public class CustomValidator {
             logError(sanitizedInput);
             throw new InvalidInputException(String.format("Input %s was rejected as invalid", sanitizedInput));
         }
+        return sanitizedInput;
+    }
+    /**
+     * Validates and sanitizes a String input.
+     * @param input the String to validate and sanitize
+     * @return the sanitized String
+     */
+    private static String validateString(String input) {
+        String sanitizedInput = validateStringLiterals(input);
         // Additional validation for email format if the input is an email
         if (!isValidEmailFormat(sanitizedInput)) {
             logError(sanitizedInput);

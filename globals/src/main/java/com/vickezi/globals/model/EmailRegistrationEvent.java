@@ -1,4 +1,4 @@
-package com.vickezi.globals.events;
+package com.vickezi.globals.model;
 
 
 import java.io.Serializable;

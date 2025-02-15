@@ -17,4 +17,5 @@ public interface RegistrationHandler {
      * @return a Mono emitting the server response
      */
     Mono<ServerResponse> register(ServerRequest serverRequest);
+    Mono<ServerResponse> verifyEmail(ServerRequest serverRequest);
 }

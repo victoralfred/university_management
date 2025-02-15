@@ -1,4 +1,4 @@
-package com.vickezi.gateway.queue;
+package com.vickezi.globals.events;
 
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.slf4j.Logger;
@@ -37,7 +37,7 @@ public class MessageProducerService<T> {
      * 2. Once the message is sent, a success handler is invoked using {@link CompletableFuture#thenApply(Function)} to log
      *    details of the successful message sending, including the partition and offset where the message was written.
      *    The {@link RecordMetadata} is retrieved from the {@link SendResult} to access this information.
-     * 3. If the message sending fails, the failure handler is triggered using {@link CompletableFuture#exceptionallyCompose(java.util.function.Function)}.
+     * 3. If the message sending fails, the failure handler is triggered using {@link CompletableFuture#exceptionallyCompose(Function)}.
      *    The exception is logged with detailed error information, and a new {@link CompletableFuture} representing the failure
      *    is returned using {@link CompletableFuture#failedFuture(Throwable)}. This ensures the caller can handle failures in a consistent manner.
      *

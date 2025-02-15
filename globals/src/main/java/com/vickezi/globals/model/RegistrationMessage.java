@@ -1,4 +1,4 @@
-package com.vickezi.registration.model;
+package com.vickezi.globals.model;
 
 import com.vickezi.globals.events.Status;
 
@@ -15,33 +15,12 @@ import java.io.Serializable;
  * </ul>
  */
 
-public class RegistrationMessage implements Serializable {
-    private  final String messageId;
-    private final String token;
-    private final Status status;
-    private final String email;
-
+public record RegistrationMessage(String messageId, String token, String status, String email) implements Serializable {
     public RegistrationMessage(String messageId, String token, String status, String email) {
         this.messageId = messageId;
         this.token = token;
-        this.status = Status.fromState(status);
+        this.status = Status.fromState(status).name();
         this.email = email;
-    }
-
-    public String getMessageId() {
-        return messageId;
-    }
-
-    public String getToken() {
-        return token;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public Status getStatus() {
-        return status;
     }
 
     @Override

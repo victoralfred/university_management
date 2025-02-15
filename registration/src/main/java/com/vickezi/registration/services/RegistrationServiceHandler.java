@@ -1,16 +1,15 @@
 package com.vickezi.registration.services;
 
+import com.vickezi.globals.events.MessageProducerService;
 import com.vickezi.globals.events.Status;
-import com.vickezi.registration.model.RegistrationMessage;
+import com.vickezi.globals.model.RegistrationMessage;
 import com.vickezi.registration.model.Users;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Service;
-
+import io.jsonwebtoken.security.SignatureException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
@@ -18,67 +17,111 @@ import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 @Service
+@Import(MessageProducerService.class)
 public class RegistrationServiceHandler {
     private static final Logger log = LoggerFactory.getLogger(RegistrationServiceHandler.class);
-    private final KeyPair keyPair = generateKeyPair();
+    private final KeyPair keyPair;
 
-    public RegistrationServiceHandler() throws NoSuchAlgorithmException {
+    /**
+     * Default constructor initializing the key pair for JWT signing.
+     */
+    public RegistrationServiceHandler() {
+        this.keyPair = generateKeyPair();
     }
-    public RegistrationMessage registerUserByEmail(final String email) throws NoSuchAlgorithmException {
-        return register(email).orElseThrow();
+
+    /**
+     * Registers a user by their email and generates a JWT token.
+     *
+     * @param email The email of the user.
+     * @return A RegistrationMessage containing the registration token.
+     * @throws RuntimeException if registration fails.
+     */
+    public RegistrationMessage registerUserByEmail(final String email) {
+        return register(email).orElseThrow(() -> new RuntimeException("Registration failed"));
     }
-    private Optional<RegistrationMessage> register(final String email) throws NoSuchAlgorithmException {
+
+    /**
+     * Generates an optional registration message containing a JWT token.
+     *
+     * @param email The email of the user.
+     * @return An optional RegistrationMessage.
+     */
+    private Optional<RegistrationMessage> register(final String email) {
         return Optional.of(buildToken(email));
     }
+
     /**
-     * Build a JWT token of email, expiry and created timeline, and {@link Status}
-     * @param email Email
-     * @return an object of Registration containing the email token
+     * Builds a JWT token containing email, expiry time, and status.
+     *
+     * @param email The email of the user.
+     * @return RegistrationMessage object with the generated token.
      */
     private RegistrationMessage buildToken(final String email) {
-        long expirationTime = 30 * 40 * 1000; // Expires in 30 minutes
+        long expirationTime = 30 * 60 * 1000; // 30 minutes
         Date now = new Date();
         Date expiration = new Date(now.getTime() + expirationTime);
+
         String token = Jwts.builder()
                 .setSubject(email)
                 .setIssuedAt(now)
                 .setExpiration(expiration)
-                .signWith(keyPair.getPrivate(),
-                        SignatureAlgorithm.ES256)
+                .signWith(keyPair.getPrivate(), SignatureAlgorithm.ES256)
                 .compact();
-        return new RegistrationMessage( UUID.randomUUID().toString(), token,
-                Status.PENDING.getState(), email);
+
+        return new RegistrationMessage(UUID.randomUUID().toString(), token, Status.PENDING.getState(), email);
     }
-    public void confirmEmailLinkIsValid(final String token) throws RuntimeException {
-        try{
+
+    /**
+     * Confirms if the email verification link is valid.
+     *
+     * @param token The JWT token received in the verification link.
+     * @throws RuntimeException if the token is invalid or expired.
+     */
+    public void confirmEmailLinkIsValid(final String token)  throws Exception{
             Claims claims = parseToken(token);
-            // Check if token expired
             Users user = new Users();
-            user.setEmail(objectTOsString(claims.get("sub")));
-            log.info("User is {}", user);
-        } catch (RuntimeException e) {
-            log.error(e.getMessage());
-            throw new RuntimeException(e);
-        }
+            user.setEmail(objectToString(claims.getSubject()));
     }
-    private Claims parseToken(final String token) throws RuntimeException{
-        try {
-            return (Claims) Jwts.parserBuilder()
+
+    /**
+     * Parses a JWT token and extracts claims.
+     *
+     * @param token The JWT token to be parsed.
+     * @return Claims extracted from the token.
+     * @throws RuntimeException if the token is invalid or expired.
+     */
+    private Claims parseToken(final String token) throws Exception {
+            return Jwts.parserBuilder()
                     .setSigningKey(keyPair.getPublic())
                     .build()
-                    .parse(token)
+                    .parseClaimsJws(token)
                     .getBody();
-        } catch (ExpiredJwtException e) {
-            log.error(e.getMessage());
-            throw new RuntimeException(e); // used for checking message type is jwt by queue, and endure its removed by ack the message
+    }
+
+    /**
+     * Generates an Elliptic Curve key pair for signing JWT tokens.
+     *
+     * @return A newly generated KeyPair.
+     * @throws IllegalStateException if key pair generation fails.
+     */
+    public static KeyPair generateKeyPair() {
+        try {
+            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("EC");
+            keyPairGenerator.initialize(256);
+            return keyPairGenerator.generateKeyPair();
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException("Failed to generate key pair", e);
         }
     }
-    public static KeyPair generateKeyPair() throws NoSuchAlgorithmException {
-        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("EC");
-        keyPairGenerator.initialize(256); // Use a 256-bit key size
-        return keyPairGenerator.generateKeyPair();
-    }
-    private <T>String objectTOsString(T t){
-        return String.valueOf(t).trim();
+
+    /**
+     * Converts an object to a string representation.
+     *
+     * @param value The object to be converted.
+     * @param <T> The type of the object.
+     * @return The string representation of the object.
+     */
+    private <T> String objectToString(T value) {
+        return String.valueOf(value).trim();
     }
 }

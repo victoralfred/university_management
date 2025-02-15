@@ -12,6 +12,7 @@ public class ServiceRoutes {
     public RouterFunction<ServerResponse> registrationRoutes(RegistrationHandlerImpl handler){
         return RouterFunctions.route().path("/api/v1/registration", path->path
                 .POST("",handler::register)
+                .GET("", handler::verifyEmail)
         ).build();
     }
 }
