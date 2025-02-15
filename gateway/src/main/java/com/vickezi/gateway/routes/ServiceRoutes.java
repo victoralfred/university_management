@@ -9,9 +9,9 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 @Configuration
 public class ServiceRoutes {
     @Bean
-    public RouterFunction<ServerResponse> registrationRoutes(RegistrationHandler handler){
+    public RouterFunction<ServerResponse> registrationRoutes(RegistrationHandlerImpl handler){
         return RouterFunctions.route().path("/api/v1/registration", path->path
-                .GET("",handler::register)
+                .POST("",handler::register)
         ).build();
     }
 }
