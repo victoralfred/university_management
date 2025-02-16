@@ -78,13 +78,13 @@ public class RegistrationServiceHandler {
      * @param token The JWT token received in the verification link.
      * @throws SignatureException if the token is invalid or expired.
      */
-    public void confirmEmailLinkIsValid(final String token)  throws SignatureException{
+    public void confirmEmailLinkIsValid(final String token)  throws RuntimeException{
            try{
                Claims claims = parseToken(token);
                Users user = new Users();
                user.setEmail(objectToString(claims.getSubject()));
            }catch (SignatureException e){
-               throw new SignatureException(e.getMessage());
+               throw new RuntimeException(e);
            }
     }
 
