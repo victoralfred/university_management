@@ -71,4 +71,7 @@ public class MessageProducerService<T> {
                     return CompletableFuture.failedFuture(new RuntimeException("Gateway message sending failed", ex));
                 });
     }
+    public void sendToDeadLetterTopic(T message){
+        template.send("dead-letter-topic", message);
+    }
 }

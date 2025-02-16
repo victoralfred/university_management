@@ -5,6 +5,7 @@ import com.vickezi.globals.events.Status;
 import com.vickezi.globals.model.RegistrationMessage;
 import com.vickezi.registration.model.Users;
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.InvalidKeyException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Import;
@@ -37,7 +38,7 @@ public class RegistrationServiceHandler {
      * @throws RuntimeException if registration fails.
      */
     public RegistrationMessage registerUserByEmail(final String email) {
-        return register(email).orElseThrow(() -> new RuntimeException("Registration failed"));
+        return register(email).orElseThrow(() -> new RuntimeException("❌ Registration failed"));
     }
 
     /**
@@ -56,7 +57,7 @@ public class RegistrationServiceHandler {
      * @param email The email of the user.
      * @return RegistrationMessage object with the generated token.
      */
-    private RegistrationMessage buildToken(final String email) {
+    private RegistrationMessage buildToken(final String email) throws InvalidKeyException {
         long expirationTime = 30 * 60 * 1000; // 30 minutes
         Date now = new Date();
         Date expiration = new Date(now.getTime() + expirationTime);
@@ -75,12 +76,16 @@ public class RegistrationServiceHandler {
      * Confirms if the email verification link is valid.
      *
      * @param token The JWT token received in the verification link.
-     * @throws RuntimeException if the token is invalid or expired.
+     * @throws SignatureException if the token is invalid or expired.
      */
-    public void confirmEmailLinkIsValid(final String token)  throws Exception{
-            Claims claims = parseToken(token);
-            Users user = new Users();
-            user.setEmail(objectToString(claims.getSubject()));
+    public void confirmEmailLinkIsValid(final String token)  throws SignatureException{
+           try{
+               Claims claims = parseToken(token);
+               Users user = new Users();
+               user.setEmail(objectToString(claims.getSubject()));
+           }catch (SignatureException e){
+               throw new SignatureException(e.getMessage());
+           }
     }
 
     /**
@@ -90,12 +95,16 @@ public class RegistrationServiceHandler {
      * @return Claims extracted from the token.
      * @throws RuntimeException if the token is invalid or expired.
      */
-    private Claims parseToken(final String token) throws Exception {
-            return Jwts.parserBuilder()
-                    .setSigningKey(keyPair.getPublic())
-                    .build()
-                    .parseClaimsJws(token)
-                    .getBody();
+    private Claims parseToken(final String token) throws SignatureException {
+            try{
+                return Jwts.parserBuilder()
+                        .setSigningKey(keyPair.getPublic())
+                        .build()
+                        .parseClaimsJws(token)
+                        .getBody();
+            }catch (SignatureException e){
+                throw new SignatureException("❌ JWT signature does not match locally computed signature. JWT validity cannot be asserted and should not be trusted.");
+            }
     }
 
     /**
@@ -110,7 +119,7 @@ public class RegistrationServiceHandler {
             keyPairGenerator.initialize(256);
             return keyPairGenerator.generateKeyPair();
         } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException("Failed to generate key pair", e);
+            throw new IllegalStateException("❌ Failed to generate key pair", e);
         }
     }
 

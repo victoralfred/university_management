@@ -73,7 +73,7 @@ public class RegistrationHandlerImpl implements RegistrationHandler{
         }
         // Validate and sanitize the email
         final String validatedToken = String.valueOf(CustomValidator.validateStringLiterals(token)).trim();
-        final String validatedMessageId = String.valueOf(CustomValidator.validateStringLiterals(token)).trim();
+        final String validatedMessageId = String.valueOf(CustomValidator.validateStringLiterals(messageId)).trim();
         // Add the email to the message Queue
         addMessageToQueue(EMAIL_VERIFICATION_MESSAGE_TOPIC,
                 new EmailVerificationEvent(validatedToken, validatedMessageId),eventMessageProducerService);
