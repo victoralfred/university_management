@@ -18,6 +18,7 @@ import static com.vickezi.globals.util.Constants.*;
 /**
  * Service responsible for receiving and processing email registration and verification events.
  * Listens to Kafka topics and processes events.
+ * Does not use auto commit so we can manage the failures retries and writing back to the same cluster
  */
 @Service
 public class ReceiverNewEmailRegistrationMessage {

@@ -103,7 +103,7 @@ public class RegistrationServiceHandler {
                         .parseClaimsJws(token)
                         .getBody();
             }catch (SignatureException e){
-                throw new SignatureException("❌ JWT signature does not match locally computed signature. JWT validity cannot be asserted and should not be trusted.");
+                throw new RuntimeException(e);
             }
     }
 
