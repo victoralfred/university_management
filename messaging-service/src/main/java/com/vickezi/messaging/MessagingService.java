@@ -1,4 +1,4 @@
-package com.vickezi.registration;
+package com.vickezi.messaging;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -6,10 +6,8 @@ import org.springframework.scheduling.annotation.EnableAsync;
 
 @SpringBootApplication
 @EnableAsync
-public class RegistrationApplication {
-
+public class MessagingService {
     public static void main(String[] args) {
-        SpringApplication.run(RegistrationApplication.class, args);
+        SpringApplication.run(MessagingService.class, args);
     }
-
 }
