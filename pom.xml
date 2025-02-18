@@ -38,6 +38,7 @@
         <module>gateway</module>
         <module>globals</module>
         <module>messaging-service</module>
+        <module>security-service</module>
     </modules>
     <dependencies>
         <dependency>
