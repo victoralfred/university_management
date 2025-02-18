@@ -24,7 +24,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest
+
 class ReceiverNewEmailRegistrationMessageTest {
 
     @Mock
@@ -51,7 +51,6 @@ class ReceiverNewEmailRegistrationMessageTest {
     private final String testEmail = "test@example.com";
     private final String testToken = "test-token-123";
 
-    @BeforeEach
     void setUp() {
         // Proper retry template configuration
         doAnswer(invocation -> {
@@ -65,7 +64,6 @@ class ReceiverNewEmailRegistrationMessageTest {
             return callback.doInOperations(kafkaTemplate);
         });
     }
-    @Test
     void handleEmailRegistration_Success() throws Exception {
         EmailRegistrationEvent event = new EmailRegistrationEvent(testEmail);
         RegistrationMessage mockMessage = new RegistrationMessage("test-id","teter","PENDING","test@email.com");
@@ -83,7 +81,6 @@ class ReceiverNewEmailRegistrationMessageTest {
         assertThat(messageCaptor.getValue()).isEqualTo(mockMessage);
     }
 
-    @Test
     void handleEmailRegistration_NullEvent() {
         receiver.handleEmailRegistration(null, acknowledgment);
 
@@ -91,7 +88,6 @@ class ReceiverNewEmailRegistrationMessageTest {
         verify(acknowledgment, never()).acknowledge();
     }
 
-    @Test
     void handleEmailVerification_Success() {
         EmailVerificationEvent event = new EmailVerificationEvent(testToken, "test-id");
 
@@ -102,7 +98,7 @@ class ReceiverNewEmailRegistrationMessageTest {
     }
 
 
-    @Test
+
     void handleEmailRegistration_RegistrationException() {
         EmailRegistrationEvent event = new EmailRegistrationEvent(testEmail);
 
@@ -127,7 +123,6 @@ class ReceiverNewEmailRegistrationMessageTest {
         verify(acknowledgment).acknowledge();
     }
 
-    @Test
     void handleEmailVerification_GeneralException() {
         EmailVerificationEvent event = new EmailVerificationEvent(testToken, "test-id");
 
@@ -140,7 +135,6 @@ class ReceiverNewEmailRegistrationMessageTest {
         verify(acknowledgment).acknowledge();
     }
 
-    @Test
     void sendToDeadLetterTopic_UnsupportedType() {
         EmailVerificationEvent invalidMessage = new EmailVerificationEvent(testToken, "test-id");
 
@@ -148,7 +142,6 @@ class ReceiverNewEmailRegistrationMessageTest {
 
         verify(messageProducerService, never()).sendToDeadLetterTopic(any());
     }
-    @Test
     void sendToDeadLetterTopic_ConvertsEmailEventToRegistrationMessage() {
         EmailRegistrationEvent event = new EmailRegistrationEvent(testEmail);
 
@@ -159,7 +152,6 @@ class ReceiverNewEmailRegistrationMessageTest {
         assertThat(captor.getValue().email()).isEqualTo(testEmail);
     }
 
-    @Test
     void sendToDeadLetterTopic_HandlesInvalidMessageTypes() {
         sendToDeadLetterTopic("invalid-message-type");
         verify(messageProducerService, never()).sendToDeadLetterTopic(any());

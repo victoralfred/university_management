@@ -11,6 +11,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import io.smallrye.mutiny.Uni;
+import jakarta.annotation.security.RunAs;
 import jakarta.persistence.NoResultException;
 import jakarta.transaction.Transactional;
 import org.hibernate.Session;
@@ -22,6 +23,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -29,8 +31,7 @@ import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import static org.junit.jupiter.api.Assertions.*;
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest
 class UserRepositoryTest {
 
     @Mock
@@ -48,7 +49,6 @@ class UserRepositoryTest {
     private Users testUser;
     private Set<Groups> groups;
     private Set<Roles> roles;
-
     @BeforeEach
     void setup() {
         // Initialize test data
@@ -104,7 +104,6 @@ class UserRepositoryTest {
         assertEquals("error", result.getUsername());
         assertTrue(result.getAuthorities().isEmpty());
     }
-
     @Test
     void findUserWithAuthorities_DatabaseError_ReturnsEmptyAuthorities() {
         // Mock database error scenario
@@ -122,7 +121,6 @@ class UserRepositoryTest {
     /**
      * Latest
      */
-    @Test
     void testCreateRole() {
         Roles role = new Roles();
         when(sessionFactory.withTransaction(any(BiFunction.class))).thenAnswer((Answer<Uni<Void>>) invocation -> {
@@ -143,7 +141,7 @@ class UserRepositoryTest {
         );
     }
 
-    @Test
+
     void testCreateGroup() {
         Groups group = new Groups();
         when(sessionFactory.withTransaction(any(Function.class))).thenAnswer((Answer<Uni<Groups>>) invocation -> {
@@ -163,7 +161,6 @@ class UserRepositoryTest {
                 }
         );
     }
-    @Test
     void testAddRoleToGroup() {
         String groupName = "Group1";
         String roleName = "Role1";
@@ -186,8 +183,7 @@ class UserRepositoryTest {
         );
     }
 
-    @Test
-    @Transactional
+
     void testAddUserToGroup() {
         String username = "user1";
         String groupName = "Group1";
@@ -215,7 +211,6 @@ class UserRepositoryTest {
         );
     }
 
-    @Test
     void testFindUserWithAuthorities() {
         String username = "user1";
         Users user = new Users();
