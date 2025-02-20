@@ -40,6 +40,7 @@
         <module>globals</module>
         <module>messaging-service</module>
         <module>security-service</module>
+        <module>user-service</module>
     </modules>
     <dependencies>
         <dependency>
@@ -56,7 +57,21 @@
             <version>6.0.0</version> <!-- Use the latest version -->
             <scope>provided</scope>
         </dependency>
-
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>r2dbc-postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core-jakarta</artifactId>
+            <version>5.6.12.Final</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>

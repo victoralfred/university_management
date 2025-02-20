@@ -1,8 +1,7 @@
-package com.vickezi.security.model;
+package com.vickezi.userservice.model;
 
-import jakarta.persistence.FetchType;
-import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 
 import java.util.*;
 
@@ -36,21 +35,6 @@ public class Users {
             inverseJoinColumns = @JoinColumn(name = "group_id")
     )
     private Set<Groups> groups = new HashSet<>();
-
-    public Users() {
-    }
-
-    public Users(UUID userId, String username, String email, String password, boolean isAccountNonExpired,
-                 boolean isAccountNonLocked, boolean isCredentialsNonExpired, boolean isEnabled) {
-        this.userId = userId;
-        this.username = username;
-        this.email = email;
-        this.password = password;
-        this.isAccountNonExpired = isAccountNonExpired;
-        this.isAccountNonLocked = isAccountNonLocked;
-        this.isCredentialsNonExpired = isCredentialsNonExpired;
-        this.isEnabled = isEnabled;
-    }
 
     public String getUsername() {
         return username;
