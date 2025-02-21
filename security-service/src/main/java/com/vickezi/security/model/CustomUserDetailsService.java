@@ -1,21 +1,25 @@
 package com.vickezi.security.model;
 
+import com.vickezi.globals.util.CustomValidator;
 import com.vickezi.security.dao.UserAuthoritiesDTO;
 import com.vickezi.security.dao.reads.GroupAndRoleServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 /**
  * CustomUserDetailsService is a service that implements the ReactiveUserDetailsService interface.
  * It is responsible for loading user-specific data.
  */
-@Configuration
+@Component
 public class CustomUserDetailsService implements ReactiveUserDetailsService {
     private final GroupAndRoleServiceImpl userRepository;
     private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
@@ -35,7 +39,14 @@ public class CustomUserDetailsService implements ReactiveUserDetailsService {
      */
     @Override
     public Mono<UserDetails> findByUsername(String username) {
-        return userRepository.findGroupsByUserNameOrEmail(username)
+        logger.info("Authentication attempt for username/email: {}", username);
+        final String authUserName = isEmailLogin(username);
+        if (authUserName.isEmpty()) {
+            loggWarning();
+            return Mono.just(new SecureUser(defaultEmpty()));
+        }
+        return userRepository.findGroupsByUserNameOrEmail(authUserName)
+                .defaultIfEmpty(new UserAuthoritiesDTO.Builder(defaultEmpty()).build())
                 .flatMap(this::createUser);
     }
     /**
@@ -45,12 +56,16 @@ public class CustomUserDetailsService implements ReactiveUserDetailsService {
      * @return a Mono emitting the UserDetails
      */
     private Mono<UserDetails> createUser(final UserAuthoritiesDTO userAuthoritiesDTO){
+        if(null==userAuthoritiesDTO.getUsers().userId){
+            loggWarning();
+            return Mono.empty();
+        }
         Users user = userAuthoritiesDTO.getUsers();
         Set<Groups> groups = getGroups(userAuthoritiesDTO);
         user.setGroupsSet(groups);
         SecureUser secureUser = new SecureUser(user);
         logger.info("Authorities: {}", secureUser.getAuthorities());
-       return Mono.just(secureUser);
+        return Mono.just(secureUser);
     }
     /**
      * Extracts groups and roles from the UserAuthoritiesDTO and creates a set of Groups.
@@ -67,5 +82,20 @@ public class CustomUserDetailsService implements ReactiveUserDetailsService {
         role.forEach(roleName -> roles.add(new Roles(roleName)));
         groups.forEach(result -> result.setRoles(roles));
         return groups;
+    }
+    private String isEmailLogin(String input){
+        if(input.contains("@")){
+            CustomValidator.isValidEmailFormat(input); // Sanitize the userInput
+            return String.valueOf(CustomValidator.genericValidation(input)); // Sanitize the userInput
+        }else {
+            return CustomValidator.validateStringLiterals(input);
+        }
+    }
+    private Users defaultEmpty(){
+        return new Users(null, null, null, null,false,false,
+                false, false);
+    }
+    private void loggWarning(){
+        logger.warn("Failed Authentication attempt: Empty username or sanitized input");
     }
 }

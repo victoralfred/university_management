@@ -5,14 +5,13 @@ import com.vickezi.security.model.Users;
 import io.r2dbc.spi.Readable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 import org.springframework.r2dbc.core.DatabaseClient;
 import reactor.core.publisher.Mono;
 import java.util.*;
 
-
-@Service
 public class GroupAndRoleServiceImpl {
+    private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+    private final DatabaseClient databaseClient;
     // SQL query to fetch user details, groups, and roles based on username or email
     private static final String USER_GROUP_QUERY = """
          SELECT u.userid, u.username, u.email, u.password,
@@ -25,9 +24,6 @@ public class GroupAndRoleServiceImpl {
              JOIN roles r ON gr.role_id = r.id
          WHERE u.username = :username OR u.email= :username
     """;
-    private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
-    private final DatabaseClient databaseClient;
-    // Constructor to initialize the database client
     public GroupAndRoleServiceImpl(DatabaseClient databaseClient) {
         this.databaseClient = databaseClient;
     }
@@ -37,14 +33,15 @@ public class GroupAndRoleServiceImpl {
      * @return a Mono containing UserAuthoritiesDTO with user details, groups, and roles.
      */
     public Mono<UserAuthoritiesDTO> findGroupsByUserNameOrEmail(String username) {
-        return makeJDBCQuery(username);
+        return getUserByUserNameOrEmail(username);
     }
     /**
      * Executes the database query to fetch user details along with groups and roles.
-     * @param username the username or email to search for.
+     * @param username       the username or email to search for.
      * @return a Mono containing UserAuthoritiesDTO if the user exists, otherwise empty.
      */
-    private Mono<UserAuthoritiesDTO> makeJDBCQuery(String username) {
+    private Mono<UserAuthoritiesDTO> getUserByUserNameOrEmail(String username) {
+        logger.info("Fetching user details from database");
         return databaseClient.sql(USER_GROUP_QUERY)
                 .bind("username", username)
                 .map(this::transformRecord)
@@ -93,5 +90,6 @@ public class GroupAndRoleServiceImpl {
         // Return an array containing user, group, and role
         return new Object[]{user, group, role};
     }
+
 
 }

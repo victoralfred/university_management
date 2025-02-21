@@ -52,7 +52,7 @@ public class RegistrationHandlerImpl implements RegistrationHandler{
                 .flatMap(email -> {
                     final String validatedEmail;
                     try {
-                        validatedEmail = String.valueOf(CustomValidator.validateInput(email.email())).trim();
+                        validatedEmail = String.valueOf(CustomValidator.genericValidation(email.email())).trim();
                     } catch (CustomValidator.InvalidInputException ex) {
                         return Mono.error(ex);
                     }
