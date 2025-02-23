@@ -1,17 +1,19 @@
 package com.vickezi.processor.controller;
 
+import com.vickezi.processor.dao.ReactiveDatabaseService;
+import com.vickezi.processor.dao.model.TenantRequest;
+import com.vickezi.processor.dao.model.TenantService;
 import com.vickezi.processor.executions.MultiTenantTerraformService;
-import com.vickezi.processor.model.InstanceProcessUsage;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.time.Duration;
-import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 
 
 @RestController
@@ -20,33 +22,81 @@ import java.util.Random;
 public class ProcessController {
     private final Logger logger = LoggerFactory.getLogger(ProcessController.class);
     private final MultiTenantTerraformService multiTenantTerraformService;
+    private final ReactiveDatabaseService reactiveDatabaseService;
+    private final TenantService tenantService;
     private final Random random = new Random();
-    public ProcessController(MultiTenantTerraformService multiTenantTerraformService) {
+    public ProcessController(MultiTenantTerraformService multiTenantTerraformService,
+                             ReactiveDatabaseService reactiveDatabaseService, TenantService tenantService) {
         this.multiTenantTerraformService = multiTenantTerraformService;
+        this.reactiveDatabaseService = reactiveDatabaseService;
+        this.tenantService = tenantService;
+    }
+    public Mono<String> aformCommand(@PathVariable String tenantId, @PathVariable String command){
+        String tenantIds = (String) "auth.getDetails()"; // Assume tenantId from JWT
+        String userId = "jemimah";
+        return multiTenantTerraformService.executeTerraformCommand(tenantId,
+                UUID.fromString("02ebe298-1037-4fbf-88dd-a3115930aeed"),
+                userId,command);
+    }
+    @PostMapping("/tenants/{tenantId}/templates/{templateId}/execute")
+    public Mono<ResponseEntity<ExecutionResponse>> executeTerraform(
+            @PathVariable String tenantId,
+            @PathVariable UUID templateId,
+            @RequestBody TerraformRequest request,
+            @RequestHeader("Authorization") String authHeader) {
+        String userId = extractUserIdFromToken(authHeader); // Assume a utility method
+
+        return multiTenantTerraformService.executeTerraformCommand(tenantId, templateId, userId, request.command(), request.args())
+                .map(output -> {
+                    ExecutionResponse response = new ExecutionResponse("success", output, UUID.randomUUID().toString());
+                    return ResponseEntity.ok(response);
+                })
+                .onErrorResume(IllegalArgumentException.class, ex ->
+                        Mono.just(ResponseEntity.badRequest().body(new ExecutionResponse("error", ex.getMessage(), null))))
+                .onErrorResume(RuntimeException.class, ex -> {
+                    if (ex.getMessage().contains("Lock already acquired")) {
+                        logger.error("Lock already acquired", ex);
+                        return Mono.just(ResponseEntity.status(HttpStatus.CONFLICT)
+                                .body(new ExecutionResponse("error", ex.getMessage(), null)));
+                    }
+                    logger.error("Failed to add tenant", ex);
+                    return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                            .body(new ExecutionResponse("error", ex.getMessage(), null)));
+                });
+    }
+    @PostMapping
+    public Mono<ResponseEntity<TenantResponse>> createTenant(
+            @Valid @RequestBody TenantRequest tenantRequest,
+            @RequestHeader("Authorization") String authHeader) {
+        String userId = extractUserIdFromToken(authHeader); // Assume this validates the user
+
+        TenantRequest tenant = new TenantRequest(tenantRequest.tenantId(),
+                tenantRequest.name(), tenantRequest.config());
+        return tenantService.saveTenant(tenant)
+                .map(savedTenant -> ResponseEntity.status(HttpStatus.CREATED)
+                        .body(new TenantResponse("success", "Tenant created", savedTenant)))
+                .onErrorResume(IllegalArgumentException.class, ex ->
+                        Mono.just(ResponseEntity.badRequest()
+                                .body(new TenantResponse("error", ex.getMessage(), null))))
+                .onErrorResume(IllegalStateException.class, ex ->
+                        Mono.just(ResponseEntity.status(HttpStatus.CONFLICT)
+                                .body(new TenantResponse("error", ex.getMessage(), null))))
+                .onErrorResume(Exception.class, ex ->
+                        Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                                .body(new TenantResponse("error", "Failed to create tenant: " + ex.getMessage(), null))));
+    }
+    private String extractUserIdFromToken(String authHeader) {
+        // Placeholder: Implement JWT/OAuth2 token parsing
+        return "user123";
     }
 
-    @PostMapping(path = "/enqueue/{tenantId}/{taskId}")
-    public Mono<String> enqueueTask(@PathVariable String tenantId, @PathVariable String taskId){
-        return multiTenantTerraformService.executeTerraformCommand(taskId, taskId);
-    }
-    @GetMapping(path = "/enqueue/{tenantId}/init")
-    public Mono<String> executeTerraformCommand(@PathVariable String tenantId){
-        return multiTenantTerraformService.executeTerraformCommand(tenantId, "init");
-    }
-    @GetMapping("/instance/process-usage")
-    public Flux<InstanceProcessUsage> getProcessUsage() {
-        logger.info("Request procesed for process state");
-        return Flux.fromIterable(generateMockData());
-//        Flux.interval(Duration.ofSeconds(5))
-//                .map(tick ->generateMockData())
-//                .flatMap(Flux::fromIterable);
-    }
+    // Example DTOs
+    public record TerraformRequest(String command, String[] args){}
 
-    private List<InstanceProcessUsage> generateMockData() {
-        return List.of(
-                new InstanceProcessUsage("Instance-1", random.nextInt(101)),
-                new InstanceProcessUsage("Instance-2", random.nextInt(101)),
-                new InstanceProcessUsage("Instance-3", random.nextInt(101))
-        );
+    /**
+     * @param output or 'message' for errors
+     */
+    public record ExecutionResponse(String status, String output, String executionId) {
     }
+    public record TenantResponse(String status, String message, TenantRequest tenantRequest){}
 }
