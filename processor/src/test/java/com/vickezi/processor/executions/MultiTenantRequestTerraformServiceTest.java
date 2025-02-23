@@ -1,31 +1,25 @@
 package com.vickezi.processor.executions;
 
 import com.vickezi.processor.dao.ReactiveDatabaseService;
-import com.vickezi.processor.dao.model.Template;
+import com.vickezi.processor.dao.model.TemplateMetadata;
 import com.vickezi.processor.util.MultiTenantFileManager;
 import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.api.extension.TestWatcher;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.r2dbc.core.DatabaseClient;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import software.amazon.awssdk.core.async.AsyncResponseTransformer;
 import software.amazon.awssdk.services.dynamodb.DynamoDbAsyncClient;
-import software.amazon.awssdk.services.dynamodb.model.ConditionalCheckFailedException;
 import software.amazon.awssdk.services.dynamodb.model.DeleteItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.DeleteItemResponse;
 import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
@@ -49,9 +43,9 @@ import static reactor.core.publisher.Flux.just;
 
 @SpringBootTest
 @ExtendWith(MockitoExtension.class)
-@ExtendWith(MultiTenantTerraformServiceTest.TestResultLoggerExtension.class)
-public class MultiTenantTerraformServiceTest {
-    private static final Logger logger = LoggerFactory.getLogger(MultiTenantTerraformServiceTest.class);
+@ExtendWith(MultiTenantRequestTerraformServiceTest.TestResultLoggerExtension.class)
+public class MultiTenantRequestTerraformServiceTest {
+    private static final Logger logger = LoggerFactory.getLogger(MultiTenantRequestTerraformServiceTest.class);
     private static final Path TEST_RESULT_FILE = Paths.get("test-results.txt");
     private static final String TENANT_ID = "15003103";
     private static final UUID TEMPLATE_ID = UUID.randomUUID();
@@ -89,7 +83,7 @@ public class MultiTenantTerraformServiceTest {
         // Arrange
         DatabaseClient.GenericExecuteSpec executeSpec = mock(DatabaseClient.GenericExecuteSpec.class);
         when(databaseService.fetchTemplateMetadata(TENANT_ID, TEMPLATE_ID))
-                .thenReturn(Mono.just(new com.vickezi.processor.dao.model.Template(UUID.fromString("02ebe298-1037-4fbf-88dd-a3115930aeed"),
+                .thenReturn(Mono.just(new TemplateMetadata(UUID.fromString("02ebe298-1037-4fbf-88dd-a3115930aeed"),
                         TENANT_ID,"jemimah",
                         "s3://test/main.tf")));
         when(s3Client.getObject((GetObjectRequest) any(GetObjectRequest.class), (AsyncResponseTransformer<GetObjectResponse, Object>) any()))
@@ -128,7 +122,7 @@ public class MultiTenantTerraformServiceTest {
     void testExecuteTerraformCommandS3Failure() {
         DatabaseClient.GenericExecuteSpec executeSpec = mock(DatabaseClient.GenericExecuteSpec.class);
         when(databaseService.fetchTemplateMetadata(TENANT_ID, TEMPLATE_ID))
-                .thenReturn(Mono.just(new com.vickezi.processor.dao.model.Template(UUID.fromString("02ebe298-1037-4fbf-88dd-a3115930aeed"),
+                .thenReturn(Mono.just(new TemplateMetadata(UUID.fromString("02ebe298-1037-4fbf-88dd-a3115930aeed"),
                         TENANT_ID,"jemimah",
                         "s3://test/main.tf")));
         when(s3Client.getObject((GetObjectRequest) any(GetObjectRequest.class), (AsyncResponseTransformer<GetObjectResponse, Object>) any()))

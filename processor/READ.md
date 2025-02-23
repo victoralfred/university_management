@@ -8,9 +8,9 @@
    * UI for creating, listing, and executing Terraform templates.
    * Tenant-aware and role-based controls.
 3. Storage:
-   * **PostgreSQL**: Stores metadata (tenant ID, template name, owner, execution history).
-   * **S3**: Stores .tf files with tenant-specific prefixes (e.g., s3://bucket/tenant-id/).
-   * **DynamoDB**: Manages Terraform state locking with tenant-specific partition keys.
+   * **PostgreSQL**: Stores metadata (tenantRequest ID, template name, owner, execution history).
+   * **S3**: Stores .tf files with tenantRequest-specific prefixes (e.g., s3://bucket/tenantRequest-id/).
+   * **DynamoDB**: Manages Terraform state locking with tenantRequest-specific partition keys.
 4. CI/CD:
    * GitHub Actions for linting, testing, and deploying backend, frontend, and Terraform.
 5. Monitoring:
