@@ -27,9 +27,15 @@ public class Roles {
     public void setAuthority(String authority) { this.name = authority; }
     @Override
     public boolean equals(Object o) {
-        if(null==o) return false;
-        if (this == o) return true;
-        if (!(o instanceof Roles roles)) return false;
+        if(null==o) {
+            return false;
+        }
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Roles roles)) {
+            return false;
+        }
         return Objects.equals(name, roles.name);
     }
 
