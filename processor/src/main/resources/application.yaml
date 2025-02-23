@@ -1,0 +1,35 @@
+spring:
+  application:
+    name: processor
+  r2dbc:
+   url: r2dbc:postgresql://localhost:5432/process_manager
+   username: atlassian
+   password: secret
+
+server:
+  port: 8090
+
+aws:
+  region: us-east-1
+  s3:
+    bucket: terraform-bucket-voseghale
+  credentials:
+    access-key: ${AWS_KEY_ID}
+    secret-key: ${AWS_SECRET}
+
+terraform:
+  base:
+   directory: C:\\project\\university-portal\\terraform
+  binary:
+    path: terraform
+  lock:
+    ttl:
+      seconds: 1800
+  default:
+   config: | 
+    provider "null" {}
+    resource "null_resource" "example" {}
+
+logging:
+  level:
+    org.springframework.r2dbc: debug
