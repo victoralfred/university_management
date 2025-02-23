@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
-import java.util.Random;
 import java.util.UUID;
 
 
@@ -24,19 +23,11 @@ public class ProcessController {
     private final MultiTenantTerraformService multiTenantTerraformService;
     private final ReactiveDatabaseService reactiveDatabaseService;
     private final TenantService tenantService;
-    private final Random random = new Random();
     public ProcessController(MultiTenantTerraformService multiTenantTerraformService,
                              ReactiveDatabaseService reactiveDatabaseService, TenantService tenantService) {
         this.multiTenantTerraformService = multiTenantTerraformService;
         this.reactiveDatabaseService = reactiveDatabaseService;
         this.tenantService = tenantService;
-    }
-    public Mono<String> aformCommand(@PathVariable String tenantId, @PathVariable String command){
-        String tenantIds = (String) "auth.getDetails()"; // Assume tenantId from JWT
-        String userId = "jemimah";
-        return multiTenantTerraformService.executeTerraformCommand(tenantId,
-                UUID.fromString("02ebe298-1037-4fbf-88dd-a3115930aeed"),
-                userId,command);
     }
     @PostMapping("/tenants/{tenantId}/templates/{templateId}/execute")
     public Mono<ResponseEntity<ExecutionResponse>> executeTerraform(
@@ -45,7 +36,6 @@ public class ProcessController {
             @RequestBody TerraformRequest request,
             @RequestHeader("Authorization") String authHeader) {
         String userId = extractUserIdFromToken(authHeader); // Assume a utility method
-
         return multiTenantTerraformService.executeTerraformCommand(tenantId, templateId, userId, request.command(), request.args())
                 .map(output -> {
                     ExecutionResponse response = new ExecutionResponse("success", output, UUID.randomUUID().toString());

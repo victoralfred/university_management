@@ -131,9 +131,15 @@ public class Users {
     }
     @Override
     public boolean equals(Object o) {
-        if(null == o) return false;
-        if (this == o) return true;
-        if (!(o instanceof Users user)) return false;
+        if(null == o) {
+            return false;
+        }
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Users user)) {
+            return false;
+        }
         return Objects.equals(username, user.username);
     }
 
