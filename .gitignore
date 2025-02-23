@@ -32,4 +32,4 @@ build/
 .vscode/
 */src/main/resources/env.properties
 /terraform
-/config
+/config/
