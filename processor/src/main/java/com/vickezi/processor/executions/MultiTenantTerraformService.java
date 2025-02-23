@@ -156,7 +156,7 @@ public class MultiTenantTerraformService {
                 .subscribeOn(Schedulers.boundedElastic())
                 .timeout(Duration.ofMinutes(5)) // Add a shorter timeout here
                 .flatMap(output -> {
-                    Mono<Void> stateHandling = command.equals("init")
+                    Mono<Void> stateHandling = "init".equals(command)
                             ? Mono.empty()
                             : Mono.fromCallable(() -> Files.exists(workingDir.resolve(TF_STATE_FILE))
                                     ? Files.readString(workingDir.resolve(TF_STATE_FILE))
