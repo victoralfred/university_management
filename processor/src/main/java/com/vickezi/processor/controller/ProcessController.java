@@ -1,5 +1,7 @@
 package com.vickezi.processor.controller;
 
+import com.vickezi.processor.dao.ReactiveDatabaseService;
+import com.vickezi.processor.dao.model.Template;
 import com.vickezi.processor.executions.MultiTenantTerraformService;
 import com.vickezi.processor.model.InstanceProcessUsage;
 import org.slf4j.Logger;
@@ -21,9 +23,11 @@ import java.util.UUID;
 public class ProcessController {
     private final Logger logger = LoggerFactory.getLogger(ProcessController.class);
     private final MultiTenantTerraformService multiTenantTerraformService;
+    private final ReactiveDatabaseService reactiveDatabaseService;
     private final Random random = new Random();
-    public ProcessController(MultiTenantTerraformService multiTenantTerraformService) {
+    public ProcessController(MultiTenantTerraformService multiTenantTerraformService, ReactiveDatabaseService reactiveDatabaseService) {
         this.multiTenantTerraformService = multiTenantTerraformService;
+        this.reactiveDatabaseService = reactiveDatabaseService;
     }
 
     @PostMapping(path = "/enqueue/{tenantId}/{taskId}")
@@ -38,13 +42,10 @@ public class ProcessController {
                 UUID.fromString("02ebe298-1037-4fbf-88dd-a3115930aeed"),
                 userId,command);
     }
-    @GetMapping("/instance/process-usage")
-    public Flux<InstanceProcessUsage> getProcessUsage() {
-        logger.info("Request procesed for process state");
-        return Flux.fromIterable(generateMockData());
-//        Flux.interval(Duration.ofSeconds(5))
-//                .map(tick ->generateMockData())
-//                .flatMap(Flux::fromIterable);
+    @GetMapping("/templates")
+    public Flux<Template> getProcessUsage() {
+        return reactiveDatabaseService.fetchAll();
+
     }
 
     private List<InstanceProcessUsage> generateMockData() {
