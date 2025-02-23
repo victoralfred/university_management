@@ -36,56 +36,26 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webflux</artifactId>
         </dependency>
-        <!-- Hibernate Reactive Core -->
         <dependency>
-            <groupId>org.hibernate.reactive</groupId>
-            <artifactId>hibernate-reactive-core</artifactId>
-            <version>2.4.0.Final</version>
-        </dependency>
-        <!-- Reactive Database Client for PostgreSQL -->
-        <dependency>
-            <groupId>io.vertx</groupId>
-            <artifactId>vertx-pg-client</artifactId>
-            <version>4.5.4</version>
-        </dependency>
-
-        <!-- Hibernate JPA Model Generator (Optional) -->
-        <dependency>
-            <groupId>org.hibernate.orm</groupId>
-            <artifactId>hibernate-jpamodelgen</artifactId>
-            <version>6.4.1.Final</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <!-- Mutiny Reactor Bridge (Optional) -->
-        <dependency>
-            <groupId>io.smallrye.reactive</groupId>
-            <artifactId>mutiny-reactor</artifactId>
-            <version>1.0.0</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-r2dbc</artifactId>
         </dependency>
         <dependency>
-            <groupId>jakarta.persistence</groupId>
-            <artifactId>jakarta.persistence-api</artifactId>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-jpa</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.antlr</groupId>
-            <artifactId>antlr4-runtime</artifactId>
-            <version>4.9.2</version>
-        </dependency>
-        <dependency>
-            <groupId>jakarta.xml.bind</groupId>
-            <artifactId>jakarta.xml.bind-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.ongres.scram</groupId>
-            <artifactId>client</artifactId>
-            <version>2.1</version>
-        </dependency>
-
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-test</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-r2dbc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.vickezi</groupId>
+            <artifactId>globals</artifactId>
         </dependency>
     </dependencies>
 
@@ -97,5 +67,26 @@
             </plugin>
         </plugins>
     </build>
+    <profiles>
+        <profile>
+            <id>build-docker-image</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.google.cloud.tools</groupId>
+                        <artifactId>jib-maven-plugin</artifactId>
 
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>build</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

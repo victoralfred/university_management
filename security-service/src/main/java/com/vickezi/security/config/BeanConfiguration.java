@@ -1,18 +1,17 @@
 package com.vickezi.security.config;
 
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Persistence;
-import org.hibernate.reactive.mutiny.Mutiny;
+
+import com.vickezi.security.dao.reads.GroupAndRoleServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.r2dbc.core.DatabaseClient;
+import org.springframework.scheduling.annotation.AsyncConfigurer;
+
 
 @Configuration
-public class BeanConfiguration {
+public class BeanConfiguration implements AsyncConfigurer {
     @Bean
-    public Mutiny.SessionFactory sessionFactory(){
-        try(EntityManagerFactory entityManagerFactory =Persistence.createEntityManagerFactory(
-                "production-persistence-unit")){
-            return entityManagerFactory.unwrap(Mutiny.SessionFactory.class);
-        }
+    public GroupAndRoleServiceImpl groupAndRoleService(DatabaseClient databaseClient){
+        return new GroupAndRoleServiceImpl(databaseClient);
     }
 }

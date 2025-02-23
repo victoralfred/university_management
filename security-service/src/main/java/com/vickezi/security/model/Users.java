@@ -37,6 +37,21 @@ public class Users {
     )
     private Set<Groups> groups = new HashSet<>();
 
+    public Users() {
+    }
+
+    public Users(UUID userId, String username, String email, String password, boolean isAccountNonExpired,
+                 boolean isAccountNonLocked, boolean isCredentialsNonExpired, boolean isEnabled) {
+        this.userId = userId;
+        this.username = username;
+        this.email = email;
+        this.password = password;
+        this.isAccountNonExpired = isAccountNonExpired;
+        this.isAccountNonLocked = isAccountNonLocked;
+        this.isCredentialsNonExpired = isCredentialsNonExpired;
+        this.isEnabled = isEnabled;
+    }
+
     public String getUsername() {
         return username;
     }

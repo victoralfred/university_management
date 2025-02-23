@@ -14,7 +14,7 @@ public class CustomValidator {
      * @param input the input object to validate
      * @return the validated and sanitized input
      */
-    public static <T>Object validateInput(T input) {
+    public static <T>Object genericValidation(T input) {
         Assert.notNull(input, "Null input was rejected as invalid");
 
         if (input instanceof Integer) {
@@ -81,7 +81,6 @@ public class CustomValidator {
             return (Integer) input > 0;
         }
         if (input instanceof String str) {
-            Assert.hasText(str, "Input can not be empty, failing");
             return !containsSQLInjection(str) && !containsXSS(str) && !containsHTMLTags(str);
         }
 
@@ -143,6 +142,10 @@ public class CustomValidator {
     public static class InvalidInputException extends RuntimeException {
         public InvalidInputException(String message) {
             super(message);
+        }
+
+        public InvalidInputException(Throwable cause) {
+            super(cause);
         }
     }
     /**
