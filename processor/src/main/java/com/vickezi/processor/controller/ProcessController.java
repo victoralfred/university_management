@@ -12,6 +12,7 @@ import reactor.core.publisher.Mono;
 import java.time.Duration;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 
 
 @RestController
@@ -27,11 +28,15 @@ public class ProcessController {
 
     @PostMapping(path = "/enqueue/{tenantId}/{taskId}")
     public Mono<String> enqueueTask(@PathVariable String tenantId, @PathVariable String taskId){
-        return multiTenantTerraformService.executeTerraformCommand(taskId, taskId);
+        return null;
     }
-    @GetMapping(path = "/enqueue/{tenantId}/init")
-    public Mono<String> executeTerraformCommand(@PathVariable String tenantId){
-        return multiTenantTerraformService.executeTerraformCommand(tenantId, "init");
+    @GetMapping(path = "/enqueue/{tenantId}/{command}")
+    public Mono<String> executeTerraformCommand(@PathVariable String tenantId, @PathVariable String command){
+        String tenantIds = (String) "auth.getDetails()"; // Assume tenantId from JWT
+        String userId = "jemimah";
+        return multiTenantTerraformService.executeTerraformCommand(tenantId,
+                UUID.fromString("02ebe298-1037-4fbf-88dd-a3115930aeed"),
+                userId,command);
     }
     @GetMapping("/instance/process-usage")
     public Flux<InstanceProcessUsage> getProcessUsage() {
