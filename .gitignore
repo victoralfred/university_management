@@ -32,4 +32,5 @@ build/
 .vscode/
 */src/main/resources/env.properties
 /terraform
+/config/dd-java-agent.jar
 /config/
