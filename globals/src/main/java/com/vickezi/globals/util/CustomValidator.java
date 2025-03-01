@@ -7,6 +7,7 @@ import org.springframework.util.Assert;
 import static com.vickezi.globals.util.Constants.*;
 
 public class CustomValidator {
+    private CustomValidator(){}
     private static final Logger logger = LoggerFactory.getLogger(CustomValidator.class);
 
     /**
@@ -17,13 +18,13 @@ public class CustomValidator {
     public static <T> Object genericValidation(T input) {
         Assert.notNull(input, "Null input was rejected as invalid");
 
-        if ((T)input instanceof Integer) {
-            return validateInteger((Integer) input);
+        if (input instanceof Integer integer) {
+            return validateInteger(integer);
         }
 
-        if ((T)input instanceof String) {
+        if (input instanceof String string) {
             // If I get value not matching email format
-            return validateString((String) input);
+            return validateString(string);
         }
 
         throw new InvalidInputException("Cannot determine type of input: " + input);
@@ -66,7 +67,7 @@ public class CustomValidator {
         // Additional validation for email format if the input is an email
         if (!isValidEmailFormat(sanitizedInput)) {
             logError(sanitizedInput);
-            throw new RuntimeException("Invalid email format: " + sanitizedInput);
+            throw new InvalidInputException("Invalid email format: " + sanitizedInput);
         }
         return sanitizedInput;
     }
@@ -77,8 +78,8 @@ public class CustomValidator {
      * @return true if the input is valid and does not contain malicious content
      */
     private static boolean validate(Object input) {
-        if (input instanceof Integer) {
-            return (Integer) input > 0;
+        if (input instanceof Integer integer) {
+            return integer > 0;
         }
         if (input instanceof String str) {
             return !containsSQLInjection(str) && !containsXSS(str) && !containsHTMLTags(str);

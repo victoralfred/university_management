@@ -17,7 +17,7 @@ import static org.mockito.Mockito.when;
 
 @WebFluxTest
 @Import(ServiceRoutes.class)
-public class ServiceRoutesTest {
+class ServiceRoutesTest {
 
     @Autowired
     private WebTestClient webTestClient;

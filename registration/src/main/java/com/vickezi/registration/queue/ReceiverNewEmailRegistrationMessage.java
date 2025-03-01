@@ -51,12 +51,12 @@ public class ReceiverNewEmailRegistrationMessage {
      * @param ack Kafka acknowledgment object
      */
     @KafkaListener(topics = USER_EMAIL_REGISTERED_EVENT_TOPIC, groupId = "user-registration-group")
-    public void handleEmailRegistration(EmailRegistrationEvent email, Acknowledgment ack) {
+    public void handleEmailRegistration(final EmailRegistrationEvent email, final Acknowledgment ack) {
         if (email == null) {
             logger.warn("❌ Received null email event, skipping.");
             return;
         }
-        logger.info("📨 Processing email registration for: {}", email.email());
+        logger.info("📨 Processing email registration");
         processMessage(email, () -> {
             RegistrationMessage message = registrationServiceHandler.registerUserByEmail(email.email());
             sendMessageToKafka(message,SEND_USER_EMAIL_REGISTRATION_MESSAGE);
@@ -70,12 +70,12 @@ public class ReceiverNewEmailRegistrationMessage {
      * @param ack Kafka acknowledgment object
      */
     @KafkaListener(topics = USER_EMAIL_REGISTRATION_CONFIRMATION_NOTICE_TOPIC, groupId = "email-verification-message-group")
-    public void handleEmailVerification(EmailVerificationEvent emailVerificationEvent, Acknowledgment ack) {
+    public void handleEmailVerification(final EmailVerificationEvent emailVerificationEvent,final Acknowledgment ack) {
         if (emailVerificationEvent == null) {
             logger.warn("❌ Received null email verification event, skipping.");
             return;
         }
-        logger.info("📩 Processing email verification for ID: {}", emailVerificationEvent.messageId());
+        logger.info("📩 Processing email verification for ID");
         processMessage(emailVerificationEvent, () -> {
             registrationServiceHandler.confirmEmailLinkIsValid(emailVerificationEvent.token());
             logger.info("✅ Email verification successful for ID: {}", emailVerificationEvent.messageId());
@@ -89,7 +89,7 @@ public class ReceiverNewEmailRegistrationMessage {
      * @param messageProcessor the processing function
      * @param ack Kafka acknowledgment object
      */
-    private <T> void processMessage(T message, Runnable messageProcessor, Acknowledgment ack) {
+    private <T> void processMessage(final T message,final  Runnable messageProcessor,final  Acknowledgment ack) {
         kafkaTemplate.executeInTransaction(trx -> {
             try {
                 retryTemplate.execute(context -> {
@@ -116,7 +116,7 @@ public class ReceiverNewEmailRegistrationMessage {
      *
      * @param message the message to send
      */
-    private <T>void sendMessageToKafka(RegistrationMessage message, String topic) {
+    private void sendMessageToKafka(final RegistrationMessage message, final String topic) {
         messageProducerService.addMessageToQueue(topic, message)
                 .exceptionally(ex -> {
                     logger.error("❌ Kafka send failure to topic {}: {}", topic, ex.getMessage(), ex);
@@ -129,9 +129,9 @@ public class ReceiverNewEmailRegistrationMessage {
      * @param <T> the type of the message
      * @param message the message to send
      */
-    private <T> void sendToDeadLetterTopic(T message) {
-        if (message instanceof RegistrationMessage) {
-            messageProducerService.sendToDeadLetterTopic((RegistrationMessage) message);
+    private <T> void sendToDeadLetterTopic(final T message) {
+        if (message instanceof RegistrationMessage registrationMessage) {
+            messageProducerService.sendToDeadLetterTopic(registrationMessage);
         } else {
             logger.error("❌ Message type {} not supported for DLQ", message.getClass().getSimpleName());
         }

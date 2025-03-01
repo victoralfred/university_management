@@ -3,14 +3,20 @@ package com.vickezi.security.model;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.stream.Collectors;
+
 /**
  * SecureUser class implements the UserDetails interface to provide user information
  * to Spring Security.
  */
-public class SecureUser implements UserDetails {
-    private final Users user;
+public class SecureUser implements UserDetails, Serializable {
+    @Serial
+    private static final long serialVersionUID = 2405172041950251807L;
+    private final transient Users user;
     /**
      * Constructor to initialize SecureUser with a Users object.
      *
@@ -32,8 +38,7 @@ public class SecureUser implements UserDetails {
                         .map(role -> new SimpleGrantedAuthority(
                                 role.getRole()
                         )))// Role name to authority object.
-                .distinct()  // Ensure that the returned list has unique roles.
-                .collect(Collectors.toList());  // Collect the authorities into a list for Spring Security.
+                .collect(Collectors.toSet());  // Collect the authorities into a list for Spring Security.
     }
     @Override
     public String getPassword() {

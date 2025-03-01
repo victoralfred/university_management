@@ -1,7 +1,6 @@
 package com.vickezi.messaging.queue;
 
 
-import com.vickezi.globals.model.EmailVerificationEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -12,7 +11,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
 import static com.vickezi.globals.util.Constants.SEND_USER_EMAIL_REGISTRATION_MESSAGE;
-import static com.vickezi.globals.util.Constants.USER_EMAIL_REGISTRATION_CONFIRMATION_NOTICE_TOPIC;
 
 /**
  * Service responsible for receiving and processing email registration events.
@@ -37,9 +35,7 @@ public class ReceiverService {
     groupId = "email-verification-message-group")
     public void listenOnNewEmailRegistration(RegistrationMessage registrationEvent) {
         logger.info("Received email registration event");
-        processMessage(registrationEvent,  ()-> {
-            sendEmail(registrationEvent);
-        });
+        processMessage(registrationEvent,  ()->  sendEmail(registrationEvent));
     }
 
     /**
@@ -56,7 +52,7 @@ public class ReceiverService {
                 logger.error("Error processing message {}: {}", message, e.getMessage(), e);
             }
     }
-    private <T>void sendEmail(RegistrationMessage registrationEvent) {
+    private void sendEmail(RegistrationMessage registrationEvent) {
         if (registrationEvent == null) {
             logger.warn("Received a null email sending event, skipping processing.");
             return;

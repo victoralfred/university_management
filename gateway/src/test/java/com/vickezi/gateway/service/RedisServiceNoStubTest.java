@@ -20,7 +20,7 @@ import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)  // Disable strictness for the whole class
-public class RedisServiceNoStubTest {
+class RedisServiceNoStubTest {
     @Mock
     private RedisTemplate<String, Object> redisTemplate;
 

@@ -1,7 +1,5 @@
 package com.vickezi.gateway.service;
 
-import com.vickezi.gateway.routes.RegistrationHandlerImpl;
-import com.vickezi.globals.model.RegistrationEmail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -44,7 +42,7 @@ public class RedisService {
         // First check if the key exists without modifying Redis
         return Mono.fromCallable(() -> !Boolean.TRUE.equals(redisTemplate.hasKey(key)))
                 .flatMap(keyNotExists -> {
-                    if (keyNotExists) {
+                    if (Boolean.parseBoolean(String.valueOf(keyNotExists))) {
                         // Only if the key doesn't exist, proceed with the temporary registration
                         // Use a different temporary key or format to avoid conflicts
                         return Mono.fromCallable(() ->
@@ -57,7 +55,7 @@ public class RedisService {
                 });
     }
 
-    public Mono<? extends RegistrationEmail> deleteKey(final String email) {
-        return Mono.fromRunnable(()->redisTemplate.delete(email));
+    public <T>Mono<T> deleteKey(final T email) {
+        return Mono.fromRunnable(()->redisTemplate.delete((String) email));
     }
 }

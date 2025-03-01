@@ -1,6 +1,7 @@
 package com.vickezi.messaging.queue;
 
 import com.vickezi.globals.model.RegistrationMessage;
+import com.vickezi.messaging.queue.exception.EmailSendingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -88,7 +89,7 @@ public class EmailServiceImpl {
             // Send the email
             Transport.send(message);
         } catch (IOException | MessagingException e) {
-            throw new RuntimeException(e);
+            throw new EmailSendingException(e);
         }
     }
 

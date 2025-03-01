@@ -3,11 +3,11 @@ package com.vickezi.registration.services;
 import com.vickezi.globals.events.MessageProducerService;
 import com.vickezi.globals.events.Status;
 import com.vickezi.globals.model.RegistrationMessage;
+import com.vickezi.registration.exception.LinkVerificationException;
+import com.vickezi.registration.exception.SignatureVerificationException;
 import com.vickezi.registration.model.Users;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.InvalidKeyException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Service;
 import io.jsonwebtoken.security.SignatureException;
@@ -20,7 +20,6 @@ import java.util.UUID;
 @Service
 @Import(MessageProducerService.class)
 public class RegistrationServiceHandler {
-    private static final Logger log = LoggerFactory.getLogger(RegistrationServiceHandler.class);
     private final KeyPair keyPair;
 
     /**
@@ -58,7 +57,7 @@ public class RegistrationServiceHandler {
      * @return RegistrationMessage object with the generated token.
      */
     private RegistrationMessage buildToken(final String email) throws InvalidKeyException {
-        long expirationTime = 30 * 60 * 1000; // 30 minutes
+        long expirationTime = 30 * 60 * 1_000L; // 30 minutes
         Date now = new Date();
         Date expiration = new Date(now.getTime() + expirationTime);
 
@@ -78,16 +77,15 @@ public class RegistrationServiceHandler {
      * @param token The JWT token received in the verification link.
      * @throws SignatureException if the token is invalid or expired.
      */
-    public void confirmEmailLinkIsValid(final String token)  throws RuntimeException{
+    public void confirmEmailLinkIsValid(final String token)  throws LinkVerificationException {
            try{
                Claims claims = parseToken(token);
                Users user = new Users();
                user.setEmail(objectToString(claims.getSubject()));
            }catch (SignatureException e){
-               throw new RuntimeException(e);
+               throw new LinkVerificationException(e);
            }
     }
-
     /**
      * Parses a JWT token and extracts claims.
      *
@@ -95,7 +93,7 @@ public class RegistrationServiceHandler {
      * @return Claims extracted from the token.
      * @throws RuntimeException if the token is invalid or expired.
      */
-    private Claims parseToken(final String token) throws SignatureException {
+    private Claims parseToken(final String token) throws SignatureVerificationException {
             try{
                 return Jwts.parserBuilder()
                         .setSigningKey(keyPair.getPublic())
@@ -103,7 +101,7 @@ public class RegistrationServiceHandler {
                         .parseClaimsJws(token)
                         .getBody();
             }catch (SignatureException e){
-                throw new RuntimeException(e);
+                throw new SignatureVerificationException(e);
             }
     }
 

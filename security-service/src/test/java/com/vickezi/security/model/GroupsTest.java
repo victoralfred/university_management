@@ -50,8 +50,12 @@ class GroupsTest {
     @Test
     void addUserToGroup() {
         Groups group = new Groups("testers");
-        Users user = new Users();
-        user.setUsername("tester");
+        Users user = new Users.UserBuilder(null,"user1",null,null )
+                .isEnabled(true)
+                .isAccountNonExpired(true)
+                .isAccountNonLocked(true)
+                .isCredentialsNonExpired(true)
+                .build();
         group.getUsers().add(user);
         assertEquals(1, group.getUsers().size());
         assertTrue(group.getUsers().contains(user));

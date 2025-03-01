@@ -5,6 +5,7 @@ import java.util.regex.Pattern;
  * Utility class containing constants used throughout the application.
  */
 public class Constants {
+    private Constants(){}
     /**
      * Pattern to detect SQL injection attempts.
      */
@@ -36,8 +37,8 @@ public class Constants {
     public static final Pattern EMAIL_PATTERN = Pattern.compile(
             "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
     );
-    public static String OPERATION_SUCCESSFUL ="Operation successful";
-    public static String OPERATION_FAILED ="Operation failed";
+    public static final String OPERATION_SUCCESSFUL ="OperationSuccessful";
+    public static final String OPERATION_FAILED ="OperationFailed";
 
 
 }

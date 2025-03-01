@@ -6,10 +6,16 @@ import com.vickezi.globals.model.EmailVerificationEvent;
 import com.vickezi.globals.model.RegistrationMessage;
 import com.vickezi.registration.exception.RegistrationException;
 import com.vickezi.registration.services.RegistrationServiceHandler;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.kafka.core.KafkaOperations;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.Acknowledgment;
@@ -21,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-
+@ExtendWith(MockitoExtension.class)
 class ReceiverNewEmailRegistrationMessageTest {
 
     @Mock
@@ -47,7 +53,7 @@ class ReceiverNewEmailRegistrationMessageTest {
 
     private final String testEmail = "test@example.com";
     private final String testToken = "test-token-123";
-
+    @BeforeEach
     void setUp() {
         // Proper retry template configuration
         doAnswer(invocation -> {
@@ -61,6 +67,7 @@ class ReceiverNewEmailRegistrationMessageTest {
             return callback.doInOperations(kafkaTemplate);
         });
     }
+    @Test
     void handleEmailRegistration_Success() throws Exception {
         EmailRegistrationEvent event = new EmailRegistrationEvent(testEmail);
         RegistrationMessage mockMessage = new RegistrationMessage("test-id","teter","PENDING","test@email.com");
@@ -77,14 +84,14 @@ class ReceiverNewEmailRegistrationMessageTest {
         verify(acknowledgment).acknowledge();
         assertThat(messageCaptor.getValue()).isEqualTo(mockMessage);
     }
-
+    @Test
     void handleEmailRegistration_NullEvent() {
         receiver.handleEmailRegistration(null, acknowledgment);
 
         verifyNoInteractions(registrationServiceHandler);
         verify(acknowledgment, never()).acknowledge();
     }
-
+    @Test
     void handleEmailVerification_Success() {
         EmailVerificationEvent event = new EmailVerificationEvent(testToken, "test-id");
 
@@ -93,9 +100,7 @@ class ReceiverNewEmailRegistrationMessageTest {
         verify(registrationServiceHandler).confirmEmailLinkIsValid(testToken);
         verify(acknowledgment).acknowledge();
     }
-
-
-
+    @Test
     void handleEmailRegistration_RegistrationException() {
         EmailRegistrationEvent event = new EmailRegistrationEvent(testEmail);
 
@@ -119,7 +124,7 @@ class ReceiverNewEmailRegistrationMessageTest {
         assertThat(dlqCaptor.getValue().email()).isEqualTo(testEmail);
         verify(acknowledgment).acknowledge();
     }
-
+    @Test
     void handleEmailVerification_GeneralException() {
         EmailVerificationEvent event = new EmailVerificationEvent(testToken, "test-id");
 
@@ -131,7 +136,7 @@ class ReceiverNewEmailRegistrationMessageTest {
         verify(messageProducerService).sendToDeadLetterTopic(any());
         verify(acknowledgment).acknowledge();
     }
-
+    @Test
     void sendToDeadLetterTopic_UnsupportedType() {
         EmailVerificationEvent invalidMessage = new EmailVerificationEvent(testToken, "test-id");
 
@@ -139,6 +144,7 @@ class ReceiverNewEmailRegistrationMessageTest {
 
         verify(messageProducerService, never()).sendToDeadLetterTopic(any());
     }
+    @Test
     void sendToDeadLetterTopic_ConvertsEmailEventToRegistrationMessage() {
         EmailRegistrationEvent event = new EmailRegistrationEvent(testEmail);
 
@@ -148,7 +154,7 @@ class ReceiverNewEmailRegistrationMessageTest {
         verify(messageProducerService).sendToDeadLetterTopic(captor.capture());
         assertThat(captor.getValue().email()).isEqualTo(testEmail);
     }
-
+    @Test
     void sendToDeadLetterTopic_HandlesInvalidMessageTypes() {
         sendToDeadLetterTopic("invalid-message-type");
         verify(messageProducerService, never()).sendToDeadLetterTopic(any());

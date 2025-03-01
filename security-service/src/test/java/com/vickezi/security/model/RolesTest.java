@@ -40,7 +40,7 @@ class RolesTest {
         Roles role1 = new Roles("ADMIN");
         Roles role2 = new Roles("ADMIN");
 
-        assertThat(role1.hashCode()).isEqualTo(role2.hashCode());
+        assertThat(role1.hashCode()).hasSameHashCodeAs(role2.hashCode());
     }
 
     @Test

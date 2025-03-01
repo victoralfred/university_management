@@ -32,7 +32,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
-public class RouteHelperUtilityMethodsTest {
+class RouteHelperUtilityMethodsTest {
 
     // Concrete implementation of the abstract class for testing
     private static class TestRouteHelper extends RouteHelperUtilityMethods {
@@ -121,7 +121,7 @@ public class RouteHelperUtilityMethodsTest {
                 .expectNext(testInput)  // Expect the original input back
                 .verifyComplete();
 
-        verify(redisService).isIdempotent(eq(testInput), eq(testInput));
+        verify(redisService).isIdempotent(testInput,testInput);
     }
 
     @Test
@@ -138,7 +138,7 @@ public class RouteHelperUtilityMethodsTest {
                 .expectError(DuplicateRequestException.class)  // Changed to correct error type
                 .verify();
 
-        verify(redisService).isIdempotent(eq(testInput), eq(testInput));
+        verify(redisService).isIdempotent(testInput,testInput);
     }
 
     @Test
@@ -353,7 +353,7 @@ public class RouteHelperUtilityMethodsTest {
         StepVerifier.create(result)
                 .verifyComplete();
 
-        verify(emailRegistrationEventProducer).addMessageToQueue(eq(topic), eq(message));
+        verify(emailRegistrationEventProducer).addMessageToQueue(topic,message);
     }
 
     @Test
@@ -391,7 +391,7 @@ public class RouteHelperUtilityMethodsTest {
                 .expectNext(email)
                 .verifyComplete();
 
-        verify(redisService).setValue(eq(email), eq(registrationEmail));
+        verify(redisService).setValue(email, registrationEmail);
         verify(emailRegistrationEventProducer).addMessageToQueue(
                 eq(USER_EMAIL_REGISTERED_EVENT_TOPIC),
                 any(EmailRegistrationEvent.class));

@@ -21,13 +21,13 @@ public class Users {
     @JsonIgnore
     private String password;
     @Column(nullable = false)
-    public boolean isAccountNonExpired;
+    private boolean isAccountNonExpired;
     @Column(nullable = false)
-    public boolean isAccountNonLocked;
+    private boolean isAccountNonLocked;
     @Column(nullable = false)
-    public boolean isCredentialsNonExpired;
+    private boolean isCredentialsNonExpired;
     @Column(nullable = false)
-    public boolean isEnabled;
+    private boolean isEnabled;
     // A user belongs to one or more groups
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
@@ -37,74 +37,50 @@ public class Users {
     )
     private Set<Groups> groups = new HashSet<>();
 
-    public Users() {
+    public Users(UserBuilder builder){
+        this.userId = builder.userId;
+        this.username = builder.username;
+        this.email = builder.email;
+        this.password = builder.password;
+        this.isAccountNonExpired = builder.isAccountNonExpired;
+        this.isAccountNonLocked = builder.isAccountNonLocked;
+        this.isCredentialsNonExpired = builder.isCredentialsNonExpired;
+        this.isEnabled = builder.isEnabled;
+        this.groups = builder.groups;
     }
 
-    public Users(UUID userId, String username, String email, String password, boolean isAccountNonExpired,
-                 boolean isAccountNonLocked, boolean isCredentialsNonExpired, boolean isEnabled) {
-        this.userId = userId;
-        this.username = username;
-        this.email = email;
-        this.password = password;
-        this.isAccountNonExpired = isAccountNonExpired;
-        this.isAccountNonLocked = isAccountNonLocked;
-        this.isCredentialsNonExpired = isCredentialsNonExpired;
-        this.isEnabled = isEnabled;
+    public Users() {
+
     }
 
     public String getUsername() {
         return username;
     }
-    public void setUsername(String username) {
-        this.username = username;
-    }
     public UUID getUserId() {
         return userId;
-    }
-    public void setUserId(UUID userId) {
-        this.userId = userId;
     }
     public String getEmail() {
         return email;
     }
-    public void setEmail(String email) {
-        this.email = email;
-    }
     public String getPassword() {
         return password;
-    }
-    public void setPassword(String password) {
-        this.password = password;
     }
     @JsonIgnore
     public boolean isAccountNonExpired() {
         return isAccountNonExpired;
     }
-    public void setAccountNonExpired(boolean accountNonExpired) {
-        isAccountNonExpired = accountNonExpired;
-    }
     @JsonIgnore
     public boolean isAccountNonLocked() {
         return isAccountNonLocked;
-    }
-    public void setAccountNonLocked(boolean accountNonLocked) {
-        isAccountNonLocked = accountNonLocked;
     }
     @JsonIgnore
     public boolean isCredentialsNonExpired() {
         return isCredentialsNonExpired;
     }
-    public void setCredentialsNonExpired(boolean credentialsNonExpired) {
-        isCredentialsNonExpired = credentialsNonExpired;
-    }
     @JsonIgnore
     public boolean isEnabled() {
         return isEnabled;
     }
-    public void setEnabled(boolean enabled) {
-        isEnabled = enabled;
-    }
-
     public Set<Groups> getGroupsSet() {
         return groups;
     }
@@ -160,5 +136,45 @@ public class Users {
                 ", isEnabled=" + isEnabled +
                 '}';
     }
+    public static class UserBuilder{
+        public final UUID userId;
+        private final String username;
+        private final String email;
+        private final  String password;
+        private boolean isAccountNonExpired;
+        private boolean isAccountNonLocked;
+        private boolean isCredentialsNonExpired;
+        private boolean isEnabled;
+        private Set<Groups> groups = new HashSet<>();
 
+        public UserBuilder(UUID userId, String username, String email, String password) {
+            this.userId = userId;
+            this.username = username;
+            this.email = email;
+            this.password = password;
+        }
+        public UserBuilder  isAccountNonExpired(boolean value) {
+            this.isAccountNonExpired = value;
+            return this;
+        }
+        public UserBuilder isAccountNonLocked(boolean value) {
+            this.isAccountNonLocked = value;
+            return this;
+        }
+        public UserBuilder isCredentialsNonExpired(boolean value) {
+            this.isCredentialsNonExpired = value;
+            return this;
+        }
+        public UserBuilder isEnabled(boolean value) {
+            this.isEnabled = value;
+            return this;
+        }
+        public UserBuilder groups(Set<Groups> groups){
+                this.groups = groups;
+                return this;
+        }
+        public Users build(){
+            return new Users(this);
+        }
+    }
 }

@@ -85,8 +85,12 @@ public class GroupAndRoleServiceImpl {
         String group = row.get("group_name", String.class);
         String role = row.get("role_name", String.class);
         // Create a Users object
-        Users user = new Users(userId, loginName, email, password, isAccountNonExpired, isAccountNonLocked,
-                isCredentialsNonExpired, isEnabled);
+        Users user = new Users.UserBuilder(userId, loginName, email, password)
+                .isAccountNonExpired(isAccountNonExpired)
+                .isAccountNonLocked(isAccountNonLocked)
+                .isCredentialsNonExpired(isCredentialsNonExpired)
+                .isEnabled(isEnabled)
+                .build();
         // Return an array containing user, group, and role
         return new Object[]{user, group, role};
     }

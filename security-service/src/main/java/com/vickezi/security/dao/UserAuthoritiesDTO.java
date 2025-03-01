@@ -13,15 +13,9 @@ public class UserAuthoritiesDTO {
         this.authorities = builder.authorities;
         this.groups = builder.groups;
     }
-
     public Users getUsers() {
         return user;
     }
-
-    public Users getUser() {
-        return user;
-    }
-
     public Set<String> getAuthorities() {
         return authorities;
     }

@@ -88,8 +88,7 @@ public class CustomUserDetailsService implements ReactiveUserDetailsService {
         }
     }
     private Users defaultEmpty(){
-        return new Users(null, null, null, null,false,false,
-                false, false);
+        return new Users.UserBuilder(null, null,null,null).build();
     }
     private void loggWarning(){
         logger.warn("Failed Authentication attempt: Empty username or sanitized input");

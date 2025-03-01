@@ -59,10 +59,10 @@ class UsersTest {
 
     @Test
     void equals_SameUsername() {
-        Users user1 = new Users();
-        user1.setUsername("user");
-        Users user2 = new Users();
-        user2.setUsername("user");
+        Users user1 = new Users.UserBuilder(null,"user1",null,null ).build();
+
+        Users user2 = new Users.UserBuilder(null,"user2",null,null ).build();
+
 
         assertEquals(user1, user2);
         assertEquals(user1.hashCode(), user2.hashCode());
@@ -70,10 +70,9 @@ class UsersTest {
 
     @Test
     void equals_DifferentUsername() {
-        Users user1 = new Users();
-        user1.setUsername("user1");
-        Users user2 = new Users();
-        user2.setUsername("user2");
+        Users user1 = new Users.UserBuilder(null,"user1",null,null ).build();
+
+        Users user2 = new Users.UserBuilder(null,"user2",null,null ).build();
 
         assertNotEquals(user1, user2);
         assertNotEquals(user1.hashCode(), user2.hashCode());
@@ -90,9 +89,8 @@ class UsersTest {
 
     @Test
     void equals_NullObject() {
-        Users user = new Users();
-        user.setUsername("user");
+        Users user = new Users.UserBuilder(null,"user1",null,null ).build();
 
-        assertNotEquals(user, null);
+        assertNotEquals(null, user);
     }
 }

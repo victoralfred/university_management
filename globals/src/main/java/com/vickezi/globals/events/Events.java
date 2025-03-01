@@ -1,6 +1,5 @@
 package com.vickezi.globals.events;
 
-import com.vickezi.globals.util.CustomValidator;
 
 /**
  * Enum representing different types of events in the system.

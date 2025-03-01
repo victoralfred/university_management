@@ -19,7 +19,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class RedisServiceTest {
+class RedisServiceTest {
 
     @Mock
     private RedisTemplate<String, Object> redisTemplate;
@@ -51,7 +51,7 @@ public class RedisServiceTest {
         StepVerifier.create(result)
                 .verifyComplete();
 
-        verify(valueOperations).set(eq(key), eq(value), eq(Duration.ofMinutes(30)));
+        verify(valueOperations).set(key, eq(value), eq(Duration.ofMinutes(30)));
     }
 
     @Test
@@ -73,7 +73,7 @@ public class RedisServiceTest {
                 .verifyComplete();
 
         verify(redisTemplate).hasKey(key);
-        verify(valueOperations).setIfAbsent(eq("temp:" + key), eq(value), eq(Duration.ofMinutes(5)));
+        verify(valueOperations).setIfAbsent("temp:" + key, eq(value), eq(Duration.ofMinutes(5)));
     }
 
 
@@ -85,7 +85,7 @@ public class RedisServiceTest {
         Object value = new Object();
 
         when(redisTemplate.hasKey(key)).thenReturn(false);
-        when(valueOperations.setIfAbsent(eq("temp:" + key), eq(value), any(Duration.class)))
+        when(valueOperations.setIfAbsent("temp:" + key, eq(value), any(Duration.class)))
                 .thenReturn(false);
 
         // Act
@@ -97,7 +97,7 @@ public class RedisServiceTest {
                 .verifyComplete();
 
         verify(redisTemplate).hasKey(key);
-        verify(valueOperations).setIfAbsent(eq("temp:" + key), eq(value), eq(Duration.ofMinutes(5)));
+        verify(valueOperations).setIfAbsent("temp:" + key, eq(value), eq(Duration.ofMinutes(5)));
     }
 
 

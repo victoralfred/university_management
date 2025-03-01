@@ -45,13 +45,12 @@ class SecureUserTest {
 
     @Test
     void userDetailsReflectUnderlyingUserState() {
-        Users user = new Users();
-        user.setUsername("testuser");
-        user.setPassword("password123");
-        user.setAccountNonExpired(true);
-        user.setAccountNonLocked(true);
-        user.setCredentialsNonExpired(true);
-        user.setEnabled(true);
+        Users user = new Users.UserBuilder(null,"user1",null,null )
+                .isEnabled(true)
+                .isAccountNonExpired(true)
+                .isAccountNonLocked(true)
+                .isCredentialsNonExpired(true)
+                .build();
         SecureUser secureUser = new SecureUser(user);
 
         assertEquals("testuser", secureUser.getUsername());
@@ -64,11 +63,12 @@ class SecureUserTest {
 
     @Test
     void disabledUserStateIsReflected() {
-        Users user = new Users();
-        user.setEnabled(false);
-        user.setAccountNonExpired(false);
-        user.setAccountNonLocked(false);
-        user.setCredentialsNonExpired(false);
+        Users user = new Users.UserBuilder(null,"user1",null,null )
+        .isEnabled(false)
+        .isAccountNonExpired(false)
+        .isAccountNonLocked(false)
+        .isCredentialsNonExpired(false)
+        .build();
         SecureUser secureUser = new SecureUser(user);
 
         assertFalse(secureUser.isEnabled());

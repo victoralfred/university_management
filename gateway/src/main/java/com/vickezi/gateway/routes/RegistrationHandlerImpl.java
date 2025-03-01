@@ -5,8 +5,6 @@ import com.vickezi.globals.model.EmailRegistrationEvent;
 import com.vickezi.globals.events.MessageProducerService;
 import com.vickezi.globals.model.EmailVerificationEvent;
 import com.vickezi.globals.model.RegistrationEmail;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
@@ -19,7 +17,6 @@ public class RegistrationHandlerImpl extends RouteHelperUtilityMethods implement
     private final MessageProducerService<EmailRegistrationEvent> messageProducerService;
     private final MessageProducerService<EmailVerificationEvent> verificationEventMessageProducerService;
     private final RedisService redisService;
-    private final Logger logger = LoggerFactory.getLogger(RegistrationHandlerImpl.class);
     public RegistrationHandlerImpl(MessageProducerService<EmailRegistrationEvent> messageProducerService, MessageProducerService<EmailVerificationEvent> verificationEventMessageProducerService, RedisService redisService) {
         this.messageProducerService = messageProducerService;
         this.verificationEventMessageProducerService = verificationEventMessageProducerService;
