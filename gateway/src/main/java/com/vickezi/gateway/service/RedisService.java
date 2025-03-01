@@ -1,6 +1,7 @@
 package com.vickezi.gateway.service;
 
 import com.vickezi.gateway.routes.RegistrationHandlerImpl;
+import com.vickezi.globals.model.RegistrationEmail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -18,12 +19,45 @@ public class RedisService {
         this.redisTemplate = redisTemplate;
     }
 
-    public Mono<Void> setValue(String key, Object value) {
-        logger.info("Adding new key/value to Redis store");
-        return Mono.fromRunnable(()->redisTemplate.opsForValue().set(key, value, Duration.ofMinutes(30)));
+    /**
+     * Stores a value in Redis with the specified key after validation has passed.
+     *
+     * @param key The key to store in Redis
+     * @param value The value to store
+     * @return A Mono that completes when the value has been stored
+     */
+    public Mono<Void> setValue(final String key, final Object value) {
+        return Mono.fromRunnable(() ->
+                redisTemplate.opsForValue().set(key, value, Duration.ofMinutes(30))
+        );
     }
-    public Mono<Boolean> isIdempotent(String key, Object value) {
+    /**
+     * Checks if a request is idempotent by verifying if the key already exists in Redis.
+     * This method is designed to only check without modifying Redis for invalid inputs.
+     *
+     * @param key The key to check in Redis
+     * @param value The value to store if the key doesn't exist
+     * @return A Mono that emits true if the request is idempotent (key doesn't exist), false otherwise
+     */
+    public Mono<Boolean> isIdempotent(final String key, final Object value) {
         logger.info("Checking Redis store for idempotency");
-        return Mono.fromCallable(()->redisTemplate.opsForValue().setIfAbsent(key, value, Duration.ofMinutes(30)));
+        // First check if the key exists without modifying Redis
+        return Mono.fromCallable(() -> !Boolean.TRUE.equals(redisTemplate.hasKey(key)))
+                .flatMap(keyNotExists -> {
+                    if (keyNotExists) {
+                        // Only if the key doesn't exist, proceed with the temporary registration
+                        // Use a different temporary key or format to avoid conflicts
+                        return Mono.fromCallable(() ->
+                                        redisTemplate.opsForValue().setIfAbsent("temp:" + key, value, Duration.ofMinutes(5)))
+                                .defaultIfEmpty(false);
+                    } else {
+                        // Key already exists, not idempotent
+                        return Mono.just(false);
+                    }
+                });
+    }
+
+    public Mono<? extends RegistrationEmail> deleteKey(final String email) {
+        return Mono.fromRunnable(()->redisTemplate.delete(email));
     }
 }

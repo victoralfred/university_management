@@ -7,7 +7,6 @@ import org.springframework.kafka.config.TopicBuilder;
 
 
 import static com.vickezi.globals.util.Constants.USER_EMAIL_REGISTERED_EVENT_TOPIC;
-import static com.vickezi.globals.util.Constants.USER_REGISTRATION_CONFIRMATION_NOTICE_TOPIC;
 
 @Configuration
 public class KafkaProducerBean {

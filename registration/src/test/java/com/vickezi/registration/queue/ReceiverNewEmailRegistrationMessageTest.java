@@ -6,20 +6,17 @@ import com.vickezi.globals.model.EmailVerificationEvent;
 import com.vickezi.globals.model.RegistrationMessage;
 import com.vickezi.registration.exception.RegistrationException;
 import com.vickezi.registration.services.RegistrationServiceHandler;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.kafka.core.KafkaOperations;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.retry.RetryCallback;
 import org.springframework.retry.support.RetryTemplate;
 
-import static com.vickezi.globals.util.Constants.USER_REGISTRATION_CONFIRMATION_NOTICE_TOPIC;
+import static com.vickezi.globals.util.Constants.USER_EMAIL_REGISTRATION_CONFIRMATION_NOTICE_TOPIC;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -74,7 +71,7 @@ class ReceiverNewEmailRegistrationMessageTest {
 
         verify(registrationServiceHandler).registerUserByEmail(testEmail);
         verify(messageProducerService).addMessageToQueue(
-                eq(USER_REGISTRATION_CONFIRMATION_NOTICE_TOPIC),
+                eq(USER_EMAIL_REGISTRATION_CONFIRMATION_NOTICE_TOPIC),
                 messageCaptor.capture()
         );
         verify(acknowledgment).acknowledge();

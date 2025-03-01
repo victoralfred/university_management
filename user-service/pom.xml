@@ -7,7 +7,6 @@
         <artifactId>university-portal</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
-
     <artifactId>user-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>user-service</name>
@@ -38,7 +37,6 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -71,5 +69,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

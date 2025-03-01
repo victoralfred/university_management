@@ -14,14 +14,14 @@ public class CustomValidator {
      * @param input the input object to validate
      * @return the validated and sanitized input
      */
-    public static <T>Object genericValidation(T input) {
+    public static <T> Object genericValidation(T input) {
         Assert.notNull(input, "Null input was rejected as invalid");
 
-        if (input instanceof Integer) {
+        if ((T)input instanceof Integer) {
             return validateInteger((Integer) input);
         }
 
-        if (input instanceof String) {
+        if ((T)input instanceof String) {
             // If I get value not matching email format
             return validateString((String) input);
         }

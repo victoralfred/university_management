@@ -59,7 +59,7 @@ public class ReceiverNewEmailRegistrationMessage {
         logger.info("📨 Processing email registration for: {}", email.email());
         processMessage(email, () -> {
             RegistrationMessage message = registrationServiceHandler.registerUserByEmail(email.email());
-            sendMessageToKafka(message);
+            sendMessageToKafka(message,SEND_USER_EMAIL_REGISTRATION_MESSAGE);
             logger.info("✅ Email registration successful, ID: {}", message.messageId());
         }, ack);
     }
@@ -69,14 +69,13 @@ public class ReceiverNewEmailRegistrationMessage {
      * @param emailVerificationEvent the received email verification event
      * @param ack Kafka acknowledgment object
      */
-    @KafkaListener(topics = EMAIL_VERIFICATION_MESSAGE_TOPIC, groupId = "email-verification-message-group")
+    @KafkaListener(topics = USER_EMAIL_REGISTRATION_CONFIRMATION_NOTICE_TOPIC, groupId = "email-verification-message-group")
     public void handleEmailVerification(EmailVerificationEvent emailVerificationEvent, Acknowledgment ack) {
         if (emailVerificationEvent == null) {
             logger.warn("❌ Received null email verification event, skipping.");
             return;
         }
         logger.info("📩 Processing email verification for ID: {}", emailVerificationEvent.messageId());
-
         processMessage(emailVerificationEvent, () -> {
             registrationServiceHandler.confirmEmailLinkIsValid(emailVerificationEvent.token());
             logger.info("✅ Email verification successful for ID: {}", emailVerificationEvent.messageId());
@@ -117,10 +116,10 @@ public class ReceiverNewEmailRegistrationMessage {
      *
      * @param message the message to send
      */
-    private void sendMessageToKafka(RegistrationMessage message) {
-        messageProducerService.addMessageToQueue(USER_REGISTRATION_CONFIRMATION_NOTICE_TOPIC, message)
+    private <T>void sendMessageToKafka(RegistrationMessage message, String topic) {
+        messageProducerService.addMessageToQueue(topic, message)
                 .exceptionally(ex -> {
-                    logger.error("❌ Kafka send failure to topic {}: {}", USER_REGISTRATION_CONFIRMATION_NOTICE_TOPIC, ex.getMessage(), ex);
+                    logger.error("❌ Kafka send failure to topic {}: {}", topic, ex.getMessage(), ex);
                     return null;
                 });
     }
