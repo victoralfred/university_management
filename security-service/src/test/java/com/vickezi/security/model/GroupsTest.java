@@ -7,7 +7,7 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class GroupsTest {
+class GroupsTest {
     @Test
     void createGroupWithName() {
         Groups group = new Groups("admins");
